@@ -1,0 +1,6 @@
+{
+    "AUTHOR" : "Paul/Xitavos",
+    "DESCRIPTION" : "Get your bot to say lines, either from the same channel or to another channel",
+    "DISABLED" : false,
+    "NAME" : "Say"
+}
