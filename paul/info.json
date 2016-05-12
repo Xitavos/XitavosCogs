@@ -1,6 +1,6 @@
 {
     "AUTHOR" : "Paul/Xitavos",
     "DESCRIPTION" : "Some random unfinished commands",
-    "DISABLED" : false,
+    "DISABLED" : true,
     "NAME" : "Random"
 }
