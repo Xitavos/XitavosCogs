@@ -3,9 +3,9 @@ import datetime
 from discord.ext import commands
 from __main__ import send_cmd_help
 
-class paul:
+class say:
 
-	"""Paul's custom commands!"""
+	"""Get your bot to say a message in a specified channel"""
 	def __init__(self, bot):
 		self.bot = bot
 
@@ -26,5 +26,5 @@ class paul:
 			await self.bot.send_message(ch, message)
 
 def setup(bot):
-	n = paul(bot)
+	n = say(bot)
 	bot.add_cog(n)
