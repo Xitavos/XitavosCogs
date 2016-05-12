@@ -31,8 +31,7 @@ class newCall:
 								voiceMember = mem.mention
 							else:
 								onlineMembers += (' ' + mem.mention)
-					ch = after.server.get_channel('channel ID here') #ID of general channel
-					#ch = after.server.get_channel('channel ID here') #ID of general channel
+					ch = after.server.default_channel
 					await self.bot.send_message(ch, voiceMember + ' started a new voice call' + onlineMembers)
 
 def setup(bot):
