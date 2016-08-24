@@ -6,14 +6,16 @@ import threading
 class newCall:
 
 	wait = False
+	user = None
 
 	"""Alerts everyone when a user joins a voice channel if there is no one else in voice"""
 	def __init__(self, bot):
 		self.bot = bot
 
 	async def userUpdate (self, before, after):
+		self.user = after
 		self.wait = True
-		t = threading.Timer(0.5, self.timer_end)
+		t = threading.Timer(1.0, self.timer_end)
 		t.start()
 
 	def timer_end(self):
@@ -21,7 +23,14 @@ class newCall:
 
 	async def userJoinedVoice (self, before, after):
 		count = 0 # Total number of users in chat
-		if self.wait == False:
+
+		members = after.server.members
+		voiceMember = None
+		for mem in members:
+			if mem.voice_channel != None and mem.voice_channel != after.server.afk_channel:
+				voiceMember = mem.mention
+
+		if self.user != voiceMember and self.wait == False:
 			if after.voice_channel != None and after.is_afk != True and (before.voice_channel == None or before.is_afk == True): # Check if user was not previously in a voice channel or was in the afk channel
 				if after.voice_channel != before.voice_channel: # Check if user has not just muted their mic or similar
 					#if after.voice_channel != None:	# Check if user has not 
@@ -44,7 +53,7 @@ class newCall:
 								else:
 									onlineMembers += (' ' + mem.mention)
 						ch = after.server.default_channel
-						await self.bot.send_message(ch, voiceMember + ' started a new voice call' + onlineMembers)
+						await self.bot.send_message(ch, voiceMember + ' started a new voice call') + onlineMembers)
 
 def setup(bot):
 	n = newCall(bot)
