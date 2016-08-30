@@ -15,7 +15,7 @@ class newCall:
 	async def userUpdate (self, before, after):
 		self.user = after
 		self.wait = True
-		t = threading.Timer(1.0, self.timer_end)
+		t = threading.Timer(5.0, self.timer_end)
 		t.start()
 
 	def timer_end(self):
