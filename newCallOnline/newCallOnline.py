@@ -1,11 +1,14 @@
 import discord
 from discord.ext import commands
+from .utils.dataIO import fileIO
+from random import choice as rndchoice
 
 class newCall:
 
 	"""Alerts everyone when a user joins a voice channel if there is no one else in voice"""
 	def __init__(self, bot):
 		self.bot = bot
+		self.lines = fileIO("data/newcallonline/lines.json", "load")
 	
 	async def userJoinedVoice (self, before, after):
 		count = 0 # Total number of users in chat
@@ -32,9 +35,28 @@ class newCall:
 							else:
 								onlineMembers += (' ' + mem.mention)
 					ch = after.server.default_channel
-					await self.bot.send_message(ch, voiceMember + ' started a new voice call' + onlineMembers)
+					sentence = random_line()
+					await self.bot.send_message(ch, line.format(voiceMember))
+					
+	def random_line(self):
+		return rndchoice(self.lines)
+
+def check_folders():
+	if not os.path.exists("data/newcallonline"):
+		print("Creating data/newcallonline folder...")
+		os.makedirs("data/newcallonline")
+
+def check_files():
+	default = ["@here ye, @here ye, {0} just started a new call!", "{0} just started a new voice call @here", "{0} wants to talk, why not join them over t@here on the left?", "{0} is feeling talkative if anyone @here is interested"]
+	
+	f = "data/newcallonline/lines.json"
+	if not fileIO(f, "check"):
+		print("Creating empty lines.json...")
+		fileIO(f, "save", default)
 
 def setup(bot):
+	check_folders()
+	check_files()
 	n = newCall(bot)
 	bot.add_cog(n)
 	bot.add_listener(n.userJoinedVoice, "on_voice_state_update")
