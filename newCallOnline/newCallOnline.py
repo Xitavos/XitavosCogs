@@ -36,11 +36,11 @@ class newCall:
 							else:
 								onlineMembers += (' ' + mem.mention)
 					ch = after.server.default_channel
-					sentence = random_line()
-					await self.bot.send_message(ch, line.format(voiceMember))
-					
-	def random_line(self):
-		return rndchoice(self.lines)
+					sentence = random_line(self)
+					await self.bot.send_message(ch, sentence.format(voiceMember))
+
+def random_line(self):
+	return rndchoice(self.lines)
 
 def check_folders():
 	if not os.path.exists("data/newcallonline"):
@@ -59,5 +59,5 @@ def setup(bot):
 	check_folders()
 	check_files()
 	n = newCall(bot)
-	bot.add_cog(n)
 	bot.add_listener(n.userJoinedVoice, "on_voice_state_update")
+	bot.add_cog(n)

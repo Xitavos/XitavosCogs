@@ -17,7 +17,7 @@ class newCall:
 					if channel != before.server.afk_channel:
 						count += len(channel.voice_members) # Add the number of users in this voice channel
 				if count == 1: # If you are the only user in the voice channels
-					ch = after.server.get_channel('channel ID here') #ID of general channel
+					ch = after.server.get_channel('121894777817006084') #ID of general channel
 					await self.bot.send_message(ch, 'New voice call started @everyone')
 
 def setup(bot):
