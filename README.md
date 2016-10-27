@@ -1,10 +1,19 @@
 # XitavosCogs
 Cogs for Red Discord bot
 
-NewCallOnline: Sends a message mentioning @here whenever someone joins a channel when noone else is in a call
+### NewCallOnline
+- Sends a message mentioning @here whenever someone joins a voice channel when no one else is in a call
 
-say: Get the bot to send a message to a specified channel
+### say
+- Get the bot to send a message to a specified channel. ```Usage: !say channel_mention message```
 
-NewCallEveryone (not up to date): Sends a message mentioning @everyone whenever someone joins a channel when noone else is in a call
+### NewCallEveryone (not up to date)
+- Sends a message mentioning @everyone whenever someone joins a voice channel when no one else is in a call
 
-paul (not up to date): Adds some simple commands: dateJoined, channelInfo, listChannels, spam (see code for more info) (has some unfinished code in as well
+### paul (not up to date)
+- Adds some simple commands: 
+    - dateJoined: Prints the date that the specified user joined the server ```Usage: !dateJoined user_mention```
+    - channelInfo: Prints the channel ID ```Usage: !channelInfo```
+    - listChannels: Prints a list of the channels on the server ```Usage: !listChannels```
+    - spam: Sends 5 private messages to the specified user ```Usage: !spam user_mention```
+- Also has some unfinished code
