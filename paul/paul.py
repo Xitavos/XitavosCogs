@@ -66,9 +66,12 @@ class paul:
 #	delCustomWord [word] [output] - Removes a word from the custom word list."""
 			
 	async def word_check(self, message):
+		self_bot = hasattr(self.bot.settings, 'self_bot') and self.bot.settings.self_bot
+		if message.author.bot or self_bot:
+			return
+		
 		if message.author.id != self.bot.user.id:
-			w = 'rip'
-			if w in message.content.lower():
+			if 'rip' in message.content.lower().split():
 				await self.bot.send_message(message.channel, 'rip that guy')
 
 def setup(bot):
