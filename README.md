@@ -1,5 +1,5 @@
 # XitavosCogs
-Cogs for Red Discord bot
+**Experimental: May cause loops and other issues, use at own risk** Cogs for Red Discord bot
 
 ### NewCallOnline
 - Sends a message mentioning @here whenever someone joins a voice channel when no one else is in a call
@@ -16,4 +16,4 @@ Cogs for Red Discord bot
     - channelInfo: Prints the channel ID ```Usage: !channelInfo```
     - listChannels: Prints a list of the channels on the server ```Usage: !listChannels```
     - spam: Sends 5 private messages to the specified user ```Usage: !spam user_mention```
-- Also has some unfinished code
+- Also has some unfinished code where it checks for the word 'rip' and replies
