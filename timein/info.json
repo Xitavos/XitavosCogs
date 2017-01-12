@@ -1,6 +1,6 @@
 {
     "AUTHOR" : "Paul/Xitavos",
-    "DESCRIPTION" : "Get the current time in any country",
+    "DESCRIPTION" : "Get the current time in any country or major cities",
     "DISABLED" : false,
     "NAME" : "TimeIn"
 }
