@@ -30,7 +30,13 @@ class timein:
 		USE - United States East (New York)
 		USW - United States West (Los Angeles)		
 		"""
-		url = 'http://api.timezonedb.com/v2/list-time-zone?key=' + self.settings['api_key'] + '&format=xml'
+		
+		apiKey = self.settings['api_key']
+		if ".com" in apiKey:
+			await self.bot.say("You have to set your API key, see data/timein/settings.json for details")
+			return
+		
+		url = 'http://api.timezonedb.com/v2/list-time-zone?key=' + apiKey + '&format=xml'
 		flag = ':flag_'
 
 		if text.lower() == 'use':
@@ -79,6 +85,8 @@ def check_files():
 		fileIO(f, "save", settings)
 
 def setup(bot):
+	check_folders()
+	check_files()
 	if soupAvailable:
 		bot.add_cog(timein(bot))
 	else:
