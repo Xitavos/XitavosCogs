@@ -6,8 +6,11 @@ Cogs for Red Discord bot
 ### NewCallOnline
 - Sends a message mentioning @here whenever someone joins a voice channel when no one else is in a call
 
-### say
+### Say
 - Get the bot to send a message to a specified channel. ```Usage: !say channel_mention message```
+
+### TimeIn
+- Find the local time in any country or major city
 
 ### NewCallEveryone (not up to date)
 - Sends a message mentioning @everyone whenever someone joins a voice channel when no one else is in a call
