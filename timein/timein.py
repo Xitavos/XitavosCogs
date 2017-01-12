@@ -1,18 +1,21 @@
 import discord
 from discord.ext import commands
 import datetime
+import os
+from .utils.dataIO import fileIO
+import aiohttp
 try: # check if BeautifulSoup4 is installed
 	from bs4 import BeautifulSoup
 	soupAvailable = True
 except:
 	soupAvailable = False
-import aiohttp
 
 class timein:
 	"""Gets the current time of anywhere in the world"""
 
 	def __init__(self, bot):
 		self.bot = bot
+		self.settings = fileIO("data/timein/settings.json", "load")
 
 	@commands.command()
 	async def timein(self, text):
@@ -27,15 +30,14 @@ class timein:
 		USE - United States East (New York)
 		USW - United States West (Los Angeles)		
 		"""
-		url = ''
+		url = 'http://api.timezonedb.com/v2/list-time-zone?key=' + self.settings['api_key'] + '&format=xml'
 		flag = ':flag_'
-		APIKey = "Your API key here"
 
 		if text.lower() == 'use':
-			url="http://api.timezonedb.com/v2/list-time-zone?key=" + APIKey + "&format=xml&country=US&zone=*New_York*'
+			url += '&country=US&zone=*New_York*'
 			flag += 'us: EAST '
 		elif text.lower() == 'usw':
-			url="http://api.timezonedb.com/v2/list-time-zone?key=" + APIKey + "&format=xml&country=US&zone=*Los_Angeles*'
+			url += '&country=US&zone=*Los_Angeles*'
 			flag += 'us: WEST '
 		elif len(text) != 2 or ' ' in text == False:
 			await self.bot.say("Country code must be 2 letters and from this list https://timezonedb.com/country-codes")
@@ -43,7 +45,7 @@ class timein:
 		else:
 			if text == 'UK' or text == 'uk':
 				text = 'GB'
-			url="http://api.timezonedb.com/v2/list-time-zone?key=" + APIKey + "&format=xml&country=" + text
+			url += '&country=' + text
 			flag += text.lower() + ': '
 			
 		async with aiohttp.get(url) as response:
@@ -61,6 +63,20 @@ class timein:
 			message += newmessage + '\n'
 		
 		await self.bot.say(message)
+		
+def check_folders():
+	if not os.path.exists("data/timein"):
+		print("Creating data/timein folder...")
+		os.makedirs("data/timein")
+
+def check_files():
+	settings = {"api_key": "Get your API key from: https://timezonedb.com"}
+	
+	f = "data/timein/settings.json"
+	if not fileIO(f, "check"):
+		print("Creating settings.json")
+		print("You must obtain an API key as noted in the newly created 'settings.json' file")
+		fileIO(f, "save", settings)
 
 def setup(bot):
 	if soupAvailable:
