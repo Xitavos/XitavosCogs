@@ -20,7 +20,7 @@ class timein:
 
 	@commands.group(pass_context=True)
 	async def timein(self, ctx):
-		"""Gets all current dates and times from all timezones in the specified country."""
+		"""Gets the date and time of a city/country"""
 		if ctx.invoked_subcommand is None:
 			await send_cmd_help(ctx)
 
