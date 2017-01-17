@@ -82,7 +82,7 @@ class timein:
 				newmessage += zone.find('countryname').get_text() + '\n'
 				newmessage += zone.find('zonename').get_text() + '\n'
 				unixtime = zone.find('timestamp').get_text()
-				time = datetime.datetime.fromtimestamp(int(unixtime)).strftime('%Y-%m-%d %H:%M:%S')
+				time = datetime.datetime.utcfromtimestamp(int(unixtime)).strftime('%Y-%m-%d %H:%M:%S')
 				newmessage += time + '\n'
 				message += newmessage + '\n'
 		
@@ -127,7 +127,7 @@ class timein:
 				newmessage += zone.find('countryname').get_text() + '\n'
 				newmessage += zone.find('zonename').get_text() + '\n'
 				unixtime = zone.find('timestamp').get_text()
-				time = datetime.datetime.fromtimestamp(int(unixtime)).strftime('%Y-%m-%d %H:%M:%S')
+				time = datetime.datetime.utcfromtimestamp(int(unixtime)).strftime('%Y-%m-%d %H:%M:%S')
 				newmessage += time + '\n'
 				message += newmessage + '\n'
 		
