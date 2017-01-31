@@ -151,13 +151,13 @@ class timein:
 		 timein create Europe/London,America/North_Dakota/New_Salem myFavourite
 		"""
 		
-		if name in self.cache:
+		if favourite_name in self.cache:
 			await self.bot.say("Favourite with that name already exists. Editing coming soon! TM")
 			return
 			
 		tasknum = 0
 		num_zones = 0
-		base_msg = "Checking and adding timezones\n"
+		base_msg = "Checking and adding timezones,"
 		status = ' %d/%d timezones checked' % (tasknum, num_zones)
 		other = ''
 		msg = await self.bot.say(base_msg + status + other)
@@ -200,8 +200,11 @@ class timein:
 				newMessage += '~' + zone.find('gmtoffset').get_text()
 				message += newMessage
 				timezonesToAdd += timezone
+				
 				if tasknum != num_zones:
 					timezonesToAdd += ','
+					message += ','
+				
 				other += "\nTimezone " + timezone + " added OK"
 				await self._robust_edit(msg, base_msg + status + other)
 			status = status = ' %d/%d timezones checked' % (tasknum, num_zones)
@@ -209,14 +212,14 @@ class timein:
 			if tasknum != num_zones:
 				time.sleep(2)
 
-		self.cache[name] = message
+		self.cache[favourite_name] = message
 		f = "data/timein/cache.json"
 		dataIO.save_json(f, self.cache)
-		self.favourites[name] = timezonesToAdd
+		self.favourites[favourite_name] = timezonesToAdd
 		f = "data/timein/favourites.json"
 		dataIO.save_json(f, self.favourites)
 		
-		base_msg = 'Favourite \"' + name + '\" successfully created\n'
+		base_msg = 'Favourite \"' + favourite_name + '\" successfully created\n'
 		await self._robust_edit(msg, base_msg + status + other)
 
 
@@ -254,7 +257,7 @@ class timein:
 		await self.bot.say(message)
 	
 	@timein.command(name="fav")
-	async def _timein_fav(self, *, fav_name):
+	async def _timein_fav(self, *, favourite_name):
 		"""Display all the times you have set in your favourites
 		"""
 		
@@ -266,15 +269,15 @@ class timein:
 			
 		utcTime = calendar.timegm(datetime.datetime.utcnow().utctimetuple())
 		
-		if fav_name not in self.cache:
+		if favourite_name not in self.cache:
 			await self.bot.say("Favourite does not exist")
 			return
 			
-		favourite = self.cache[fav_name]
+		favourite = self.cache[favourite_name]
 		
 		favSplit = favourite.strip().split(',')
 		
-		message = ''
+		message = '**' + favourite_name + '**\n'
 		
 		for fav in favSplit:
 			msgSplit = fav.strip().split('~')
@@ -302,7 +305,7 @@ class timein:
 	async def refresh_cache(self):
 		tasknum = 0
 		num_zones = 0
-		base_msg = "Cache refreshing. This may take a few seconds\n"
+		base_msg = "Cache refreshing. This may take a few seconds..."
 		status = ' %d/%d timezones fetched' % (tasknum, num_zones)
 		msg = await self.bot.say(base_msg + status)
 		
