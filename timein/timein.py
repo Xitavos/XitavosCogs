@@ -219,7 +219,7 @@ class timein:
 		f = "data/timein/favourites.json"
 		dataIO.save_json(f, self.favourites)
 		
-		base_msg = 'Favourite \"' + favourite_name + '\" successfully created\n'
+		base_msg = 'Favourite \"' + favourite_name + '\" successfully created,'
 		await self._robust_edit(msg, base_msg + status + other)
 
 
