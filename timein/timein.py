@@ -30,12 +30,10 @@ class timein:
 			await send_cmd_help(ctx)
 
 	@timein.command(name="country")
-	async def _timein_country(self, text):
+	async def _timein_country(self, country_code):
 		"""Get time using country code
 		
-		Usage: timein country [AA]
-		
-		where [AA] is a 2 letter country code from this list https://timezonedb.com/country-codes or a custom shortcut code
+		country_code is a 2 letter country code from this list https://timezonedb.com/country-codes or a custom shortcut code
 		
 		Preset shortcuts:
 		UK - United Kingdom (converts to GB)
@@ -51,23 +49,23 @@ class timein:
 		url = 'http://api.timezonedb.com/v2/list-time-zone?key=' + apiKey + '&format=xml'
 		flag = ':flag_'
 
-		if text.lower() == 'use':
+		if country_code.lower() == 'use':
 			url += '&country=US&zone=*New_York*'
 			flag += 'us: EAST '
-		elif text.lower() == 'usw':
+		elif country_code.lower() == 'usw':
 			url += '&country=US&zone=*Los_Angeles*'
 			flag += 'us: WEST '
-		elif text.lower() == 'test':
+		elif country_code.lower() == 'test':
 			url += '&zone=*auckland*'
 			flag += 'nz: '
-		elif len(text) != 2 or ' ' in text == False:
+		elif len(country_code) != 2 or ' ' in country_code == False:
 			await self.bot.say("Country code must be 2 letters and from this list https://timezonedb.com/country-codes")
 			return
 		else:
-			if text == 'UK' or text == 'uk':
-				text = 'GB'
-			url += '&country=' + text
-			flag += text.lower() + ': '
+			if country_code == 'UK' or country_code == 'uk':
+				country_code = 'GB'
+			url += '&country=' + country_code
+			flag += country_code.lower() + ': '
 			
 		async with aiohttp.get(url) as response:
 			soupObject = BeautifulSoup(await response.text(), "html.parser")
@@ -95,10 +93,8 @@ class timein:
 
 
 	@timein.command(name="city")
-	async def _timein_city(self, *, text):
+	async def _timein_city(self, *, city_name):
 		"""Get time by searching for a city.
-		
-		Usage: timein city [CITY NAME]
 		
 		Only capitals and other major cities are in this list
 		"""
@@ -110,7 +106,7 @@ class timein:
 		
 		url = 'http://api.timezonedb.com/v2/list-time-zone?key=' + apiKey + '&format=xml'
 		
-		city = text.replace(' ', '_')
+		city = city_name.replace(' ', '_')
 		
 		url += '&zone=*' + city + '*'
 		
@@ -138,19 +134,110 @@ class timein:
 		
 		await self.bot.say(message)
 	
-	@timein.command(name="add")
-	async def _timein_add(self, text):
-		"""Adds a favourite group of timezones that can be quickly accessed
+	@timein.command(name="create")
+	async def _timein_create(self, timezones, *, favourite_name):
+		"""Creates a favourite group of timezones that can be quickly accessed
+		
+		Format the timezones input as follows:
+		
+		 - Copy exactly (including the _ and /) the Region/City that appears when you request for the time. E.g. Europe/London
+		 
+		 - Separate each timezone you want in the favourite with a comma
+		 
+		 - Add a space then write the name of the favourite. Can be multiple words 
+
+		 Final command should look like:
+		 
+		 timein create Europe/London,America/North_Dakota/New_Salem myFavourite
 		"""
 		
-		await self.bot.say("test")
+		if name in self.cache:
+			await self.bot.say("Favourite with that name already exists. Editing coming soon! TM")
+			return
+			
+		tasknum = 0
+		num_zones = 0
+		base_msg = "Checking and adding timezones\n"
+		status = ' %d/%d timezones checked' % (tasknum, num_zones)
+		other = ''
+		msg = await self.bot.say(base_msg + status + other)
 		
-	@timein.command(name="del")
-	async def _timein_del(self, text):
-		"""Removes a favourite group of timezones from the list
+		apiKey = self.settings['api_key']
+		if ".com" in apiKey:
+			await self.bot.say("You have to set your API key, see data/timein/settings.json for details")
+			return
+		
+		timezonesList = timezones.strip().split(',')
+		
+		num_zones = len(timezonesList)
+		
+		timezonesToAdd = ''
+		message = ''
+		
+		for timezone in timezonesList:
+			url = 'http://api.timezonedb.com/v2/list-time-zone?key=' + apiKey + '&format=xml&zone=' + timezone
+			
+			async with aiohttp.get(url) as response:
+				soupObject = BeautifulSoup(await response.text(), "html.parser")
+			status = soupObject.find('status').get_text()
+			
+			tasknum += 1
+			
+			if status != 'OK':
+				newMessage = ''
+				newMessage += 'Request failed. Details:\n```'
+				newMessage += status + '\n'
+				newMessage += soupObject.find('message').get_text()
+				newMessage += '```\nTimezone ' + timezone + ' not found, please fix'
+				await self.bot.say(newMessage)
+				return
+			else:
+				newMessage = ''
+				zone = soupObject.find('zone') #zone names are unique so should only ever be one result
+				newMessage += ':flag_' + zone.find('countrycode').get_text().lower() + ': '
+				newMessage += zone.find('countryname').get_text() + '\n'
+				newMessage += zone.find('zonename').get_text() + '\n'
+				newMessage += '~' + zone.find('gmtoffset').get_text()
+				message += newMessage
+				timezonesToAdd += timezone
+				if tasknum != num_zones:
+					timezonesToAdd += ','
+				other += "\nTimezone " + timezone + " added OK"
+				await self._robust_edit(msg, base_msg + status + other)
+			status = status = ' %d/%d timezones checked' % (tasknum, num_zones)
+			await self._robust_edit(msg, base_msg + status + other)
+			if tasknum != num_zones:
+				time.sleep(2)
+
+		self.cache[name] = message
+		f = "data/timein/cache.json"
+		dataIO.save_json(f, self.cache)
+		self.favourites[name] = timezonesToAdd
+		f = "data/timein/favourites.json"
+		dataIO.save_json(f, self.favourites)
+		
+		base_msg = 'Favourite \"' + name + '\" successfully created\n'
+		await self._robust_edit(msg, base_msg + status + other)
+
+
+	@timein.command(name="delete")
+	async def _timein_delete(self, *, favourite_name):
+		"""Deletes a favourite group of timezones
 		"""
 		
-		await self.bot.say("test")
+		if favourite_name not in self.cache:
+			await self.bot.say("Favourite with that name does not exist")
+			return
+			
+		self.favourites.pop(favourite_name, None)
+		self.cache.pop(favourite_name, None)
+		
+		f = "data/timein/cache.json"
+		dataIO.save_json(f, self.cache)
+		f = "data/timein/favourites.json"
+		dataIO.save_json(f, self.favourites)
+		
+		await self.bot.say("Favourite \"" + favourite_name + "\" deleted")
 		
 	@timein.command(name="list")
 	async def _timein_list(self):
@@ -167,23 +254,23 @@ class timein:
 		await self.bot.say(message)
 	
 	@timein.command(name="fav")
-	async def _timein_fav(self, *, text):
+	async def _timein_fav(self, *, fav_name):
 		"""Display all the times you have set in your favourites
 		"""
 		
 		lastRefresh = int(self.cache['last_refresh'])
 		currentTime = int(time.time())
-		if lastRefresh - currentTime > 48*60*60: #2 days
-			await self.bot.say("") #this is here so it loads
-			#self.refresh_cache()
+		
+		if (currentTime - lastRefresh) > 48*60*60: #2 days
+			await self.refresh_cache()
 			
 		utcTime = calendar.timegm(datetime.datetime.utcnow().utctimetuple())
 		
-		if text not in self.cache:
+		if fav_name not in self.cache:
 			await self.bot.say("Favourite does not exist")
 			return
 			
-		favourite = self.cache[text]
+		favourite = self.cache[fav_name]
 		
 		favSplit = favourite.strip().split(',')
 		
@@ -215,7 +302,7 @@ class timein:
 	async def refresh_cache(self):
 		tasknum = 0
 		num_zones = 0
-		base_msg = "Cache refreshing. This may take a few seconds"
+		base_msg = "Cache refreshing. This may take a few seconds\n"
 		status = ' %d/%d timezones fetched' % (tasknum, num_zones)
 		msg = await self.bot.say(base_msg + status)
 		
@@ -224,15 +311,14 @@ class timein:
 			await self.bot.say("You have to set your API key, see data/timein/settings.json for details")
 			return
 			
-		finalMessage = ''
-			
 		for group in self.favourites:
-			message = ',\n"' + group + '" : "'
+			message = ''
 			items = self.favourites[group].strip().split(',')
 			
 			num_zones += len(items)
+			
 			status = status = ' %d/%d timezones fetched' % (tasknum, num_zones)
-			msg = await self._robust_edit(msg, base_msg + status)
+			await self._robust_edit(msg, base_msg + status)
 			
 			for item in items:
 				tasknum += 1
@@ -249,8 +335,8 @@ class timein:
 				else:
 					zone = soupObject.find('zone') #zone names are unique so should only ever be one result
 					newMessage += ':flag_' + zone.find('countrycode').get_text().lower() + ': '
-					newMessage += zone.find('countryname').get_text() + '\\n'
-					newMessage += zone.find('zonename').get_text() + '\\n'
+					newMessage += zone.find('countryname').get_text() + '\n'
+					newMessage += zone.find('zonename').get_text() + '\n'
 					newMessage += '~' + zone.find('gmtoffset').get_text()
 					if tasknum != num_zones:
 						newMessage += ','
@@ -258,12 +344,9 @@ class timein:
 				status = status = ' %d/%d timezones fetched' % (tasknum, num_zones)
 				msg = await self._robust_edit(msg, base_msg + status)
 				time.sleep(2)
-			message += '"'
-			finalMessage += message
-			self.cache[group] = message #HELP
-		finalMessage += '\n'
-		await self._robust_edit(msg, finalMessage)
-		#TODO write to cache file
+			self.cache[group] = message
+		await self._robust_edit(msg, "Completed, " + status)
+
 		self.cache['last_refresh'] = str(int(time.time()))
 		f = "data/timein/cache.json"
 		dataIO.save_json(f, self.cache)
