@@ -53,28 +53,6 @@ class paul:
 		for x in range(0, 5):
 			await self.bot.send_message(user, msg)
 
-#	@commands.command(pass_context=True)
-#	async def addCustomWord(self, ctx, *words : str):
-#	"""Adds a custom word
-#	
-#	addCustomWord [word] [output] - Adds a word to the custom word list. If word is detected, bot will say the output message"""
-#		
-#	@commands.command(pass_context=True)
-#	async def delCustomWord(self,ctx):
-#	"""Removes a custom word
-#	
-#	delCustomWord [word] [output] - Removes a word from the custom word list."""
-			
-	async def word_check(self, message):
-		self_bot = hasattr(self.bot.settings, 'self_bot') and self.bot.settings.self_bot
-		if message.author.bot or self_bot:
-			return
-		
-		if message.author.id != self.bot.user.id:
-			if 'rip' in message.content.lower().split():
-				await self.bot.send_message(message.channel, 'rip that guy')
-
 def setup(bot):
 	n = paul(bot)
 	bot.add_cog(n)
-	bot.add_listener(n.word_check, "on_message")
