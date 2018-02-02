@@ -24,6 +24,7 @@ class say:
 			#await self.bot.send_message(ctx.message.channel, message)
 		else:
 			await self.bot.send_message(ch, message)
+			await self.bot.delete_message(ctx.message)
 
 def setup(bot):
 	n = say(bot)
